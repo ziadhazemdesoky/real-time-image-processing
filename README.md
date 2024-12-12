@@ -173,4 +173,4 @@ This project is licensed under the MIT License. See the `LICENSE` file for detai
 
 For questions or support, please reach out to:
 - **Email**: ziadhazemdesoky@gmail.com
-- **GitHub**: [Your GitHub Profile](https://github.com/ziadhazemdesoky)
+- **GitHub**: [Ziad ELdesoky](https://github.com/ziadhazemdesoky)
