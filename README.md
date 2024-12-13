@@ -1,176 +1,89 @@
-# Real-Time Image Processing Service
+# Real-Time Image Processing Benchmark
 
-This project demonstrates a **real-time image processing service** implemented in both **Go** and **Node.js**. It allows users to upload an image, applies transformations (e.g., grayscale), and returns the processed image in near real-time.
+This project benchmarks the performance of Go and Node.js for real-time image processing tasks. The analysis evaluates throughput, latency, and the total number of requests processed under identical conditions.
 
-The service is designed to be **CPU-intensive** and highlights performance and readability differences between Go and Node.js implementations.
+## **Setup Instructions**
 
----
+### **1. Prerequisites**
+- Install [wrk](https://github.com/wg/wrk) for benchmarking.
+- Install Python 3 with `pandas` and `matplotlib` libraries.
+- Ensure Go and Node.js are installed on your system.
 
-## Features
-- Upload an image for processing via a `/process` endpoint.
-- Apply grayscale transformation to the image.
-- Return the processed image in JPEG format.
-- Benchmark the performance of both Go and Node.js implementations under high load.
+### **2. Start the Servers**
 
----
+#### **Go Server**
+1. Navigate to the Go server directory:
+   ```bash
+   cd go-service
+   ```
+2. Run the Go server:
+   ```bash
+   go run cmd/main.go
+   ```
 
-## Project Structure
+#### **Node.js Server**
+1. Navigate to the Node.js server directory:
+   ```bash
+   cd node-service
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Run the Node.js server:
+   ```bash
+   node src/app.js
+   ```
 
-```
-/real-time-image-processing
-├── go-service                  # Go implementation
-│   ├── cmd                     # Main application entry point
-│   ├── internal
-│   │   ├── handlers            # HTTP handlers
-│   │   └── services            # Business logic (image processing)
-│   └── go.mod                  # Go module file
-├── node-service                # Node.js implementation
-│   ├── src
-│   │   ├── app.js              # Main application entry point
-│   │   ├── controllers         # Route controllers
-│   │   └── services            # Business logic (image processing)
-│   ├── package.json            # Node.js dependencies
-└── benchmark                   # Benchmarking utilities
-    └── benchmark.js            # Script for performance testing
-```
+### **3. Run Benchmarks**
+1. Prepare the `wrk` benchmarking script (`post.lua`) to send image requests.
+2. Start benchmarking with `wrk`:
+   ```bash
+   wrk -t4 -c50 -d30s -s post.lua http://localhost:8080/process  # Go
+   wrk -t4 -c50 -d30s -s post.lua http://localhost:8081/process  # Node.js
+   ```
+3. Save the logs:
+   ```bash
+   wrk -t4 -c50 -d30s -s post.lua http://localhost:8080/process > go_log.txt
+   wrk -t4 -c50 -d30s -s post.lua http://localhost:8081/process > node_log.txt
+   ```
 
----
+### **4. Analyze Results**
 
-## Getting Started
+1. Ensure the Python environment is set up:
+   ```bash
+   python3 -m venv venv
+   source venv/bin/activate
+   pip install pandas matplotlib
+   ```
 
-### Prerequisites
-- **Go** (1.20+)
-- **Node.js** (16+)
-- **npm** (8+)
-- **Multer** (for Node.js file upload)
-- **Canvas** (Node.js image processing library)
-- **wrk** or **Apache Benchmark** (for benchmarking)
+2. Run the analysis script:
+   ```bash
+   python3 log_analysis.py
+   ```
 
----
+3. Output includes:
+   - Total requests processed.
+   - Average latency per request.
+   - Throughput (requests per second).
+   - Visualized comparisons of throughput and latency.
 
-### Clone the Repository
+### **5. Example Metrics**
 
-```bash
-git clone https://github.com/ziadhazemdesoky/real-time-image-processing.git
-cd real-time-image-processing
-```
+#### **Go Metrics:**
+- Total Requests: 2394
+- Average Latency: 519 ms
+- Throughput: 79.8 requests/second
 
----
+#### **Node.js Metrics:**
+- Total Requests: 1341
+- Average Latency: 22.55 ms
+- Throughput: 44.7 requests/second
 
-### Running the Go Service
+### **6. Interpretation**
+- Go excels in high-throughput scenarios but has higher request latency.
+- Node.js provides lower latency but lower throughput.
+- Use the metrics to determine suitability for your specific application.
 
-#### Install Dependencies
-```bash
-cd go-service
-go mod tidy
-```
-
-#### Run the Service
-```bash
-go run cmd/main.go
-```
-
-The Go service will run on `http://localhost:8080`.
-
----
-
-### Running the Node.js Service
-
-#### Install Dependencies
-```bash
-cd node-service
-npm install
-```
-
-#### Run the Service
-```bash
-node src/app.js
-```
-
-The Node.js service will run on `http://localhost:8081`.
-
----
-
-### Usage
-
-#### Upload and Process an Image
-Make a POST request to the `/process` endpoint with a form-data payload containing an image file:
-
-For Go:
-```bash
-curl -X POST http://localhost:8080/process \
-  -F "image=@path/to/image.jpg" \
-  -o processed_image.jpg
-```
-
-For Node.js:
-```bash
-curl -X POST http://localhost:8081/process \
-  -F "image=@path/to/image.jpg" \
-  -o processed_image.jpg
-```
-
----
-
-## Performance Benchmarking
-
-### Using wrk
-```bash
-wrk -t12 -c400 -d30s -s benchmark/benchmark.lua http://localhost:8080/process
-```
-
-### Using Apache Benchmark
-```bash
-ab -n 1000 -c 100 -p sample_payload.txt -T "multipart/form-data" http://localhost:8080/process
-```
-
-### Node.js Benchmark Script
-Edit `benchmark/benchmark.js` to specify the target URL and image file, then run:
-```bash
-node benchmark/benchmark.js
-```
-
----
-
-## Results Comparison
-
-Benchmark metrics to compare between Go and Node.js:
-1. **Latency**: Average time per request (ms).
-2. **Throughput**: Requests per second (rps).
-3. **Resource Usage**: CPU and memory consumption.
-
----
-
-## Design Highlights
-
-### Go Implementation
-- Uses the `image` package for efficient image manipulation.
-- Designed with a clean modular architecture (`handlers`, `services`).
-
-### Node.js Implementation
-- Utilizes the `canvas` library for image processing.
-- Clean separation of concerns with `controllers` and `services`.
-
----
-
-## Contributing
-
-Contributions are welcome! Please follow these steps:
-1. Fork the repository.
-2. Create a new branch (`feature/your-feature-name`).
-3. Commit your changes.
-4. Push the branch and create a pull request.
-
----
-
-## License
-
-This project is licensed under the MIT License. See the `LICENSE` file for details.
-
----
-
-## Contact
-
-For questions or support, please reach out to:
-- **Email**: ziadhazemdesoky@gmail.com
-- **GitHub**: [Ziad ELdesoky](https://github.com/ziadhazemdesoky)
+## **License**
+This project is licensed under the MIT License.
