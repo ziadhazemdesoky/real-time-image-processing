@@ -4,8 +4,8 @@ const fs = require('fs');
 
 const url = 'http://localhost:8080/process'; // Update to Node.js service URL if testing it
 const imagePath = './sample.jpg';
-const totalRequests = 5000; 
-const concurrency = 10; 
+const totalRequests = 1000; 
+const concurrency = 100; 
 
 (async function benchmark() {
     console.log(`Starting benchmark for ${url}`);
